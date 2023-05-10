@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,14 +20,17 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
 
 
-// Route::post('register', [\App\Http\Controllers\API\AuthController::class, 'register']);
-
-
 
 // To protect routes so that all incoming requests must be authenticated
 Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('logout', [AuthController::class, 'logout']);
+
+    Route::get('users/{id}', [UserController::class, 'show']);  //done
+    Route::put('users/{id}', [UserController::class, 'update']);
+
+
+    Route::put('/{id}', 'App\Http\Controllers\UserManagementController@update_user');
 
 
 });
