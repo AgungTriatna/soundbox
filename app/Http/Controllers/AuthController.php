@@ -17,53 +17,95 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:8',
+            'confirmation_password' => 'required|same:password'
+        ]);
+
+        // kondisi ketika satu atau lebih inputan tidak sesuai aturan di atas
+        // ($validator->validated());
+        if ($validator->fails()) {
+            return messageError($validator->messages()->toArray());
+        }
+
+        $user = $validator->validated();
+
+
+        //masukkan user ke database user 
+        User::create($user);
+
+        // isi token JWT
+        $playload = [
+            'nama' => $user['nama'],
+            'role' => 'user',
+            'iat' => now()->timestamp,
+            'exp' => now()->timestamp + 7200
+        ];
+
+        // generate token dengan algoritma HS256
+        $token = JWT::encode($playload, env('JWT_SECRET_KEY'), 'HS256');
+
+        // BUAT LOGIN 
+        Log::create([
+            'module' => 'login',
+            'action' => 'login akun',
+            'useraccess' => $user['email']
+        ]);
+
+        // kirim respons ke pengguna 
+        return response()->json([
+            "data" => [
+                'msg' => "Berhasil Register",
+                'name' => $user['nama'],
+                'email' => $user['email'],
+                'role' => 'user',
+            ],
+            "token" => "Beare {$token}"
+        ], 200);
+    }
+
+    public function login(Request $request)
+    {
         try {
 
             $validator = Validator::make($request->all(), [
-                'name' => 'required',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|min:8',
-                'confirmation_password' => 'required|same:password'
+                'email' => 'required|email',
+                'password' => 'required'
             ]);
 
-            $user = $validator->validated();
+            if (Auth::attempt($validator->validated())) {
+                $playload = [
+                    'name' => Auth::user()->name,
+                    'role' => Auth::user()->role,
+                    'iat' => now()->timestamp,
+                    'ext' => now()->timestamp + 7200
+                ];
 
+                $token = JWT::encode($playload, env('JWT_SECRET_KEY'), 'HS256');
 
-            //masukkan user ke database user 
-            User::create($user);
+                Log::create([
+                    'module' => 'login',
+                    'action' => 'login akun',
+                    'useraccess' => Auth::user()->email
+                ]);
 
-            // isi token JWT
-            $playload = [
-                'nama' => $user['name'],
-                'role' => 'user',
-                'iat' => now()->timestamp,
-                'exp' => now()->timestamp + 7200
-            ];
+                return response()->json([
+                    "data" => [
+                        'msg' => "berhasil login",
+                        'name' => Auth::user()->name,
+                        'email' => Auth::user()->email,
+                        'role' => Auth::user()->role,
+                    ],
+                    "token" => "Bearer {$token}"
+                ], 200);
+            }
 
-            // generate token dengan algoritma HS256
-            $token = JWT::encode($playload, env('JWT_SECRET_KEY'), 'HS256');
-
-            // BUAT LOGIN 
-            Log::create([
-                'module' => 'login',
-                'action' => 'login akun',
-                'useraccess' => $user['email']
-            ]);
-
-            // kirim respons ke pengguna 
-            return response()->json([
-                "data" => [
-                    'msg' => "Berhasil Register",
-                    'nama' => $user['name'],
-                    'email' => $user['email'],
-                    'role' => 'user',
-                ],
-                "token" => "Beare {$token}"
-            ], 200);
+            return response()->json("email atau password salah", 422);
         } catch (\Exception $e) {
             return response()->json([
-                'error' => $e->getMessage(),
-                'message' => 'Something went wrong in AuthController.register'
+                'message' => 'Something went wrong in AuthController.login', $e->getMessage(),
             ]);
         }
     }
