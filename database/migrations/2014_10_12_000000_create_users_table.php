@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->enum('role', ['admin', 'user', 'creator'])->default('user'); //tambah 1 role
-            $table->string('foto')->nullable()->default(null); // untuk foto profil
+            $table->enum('req_upgrade', ['request', 'creator'])->nullable()->default(null);
             $table->rememberToken();
             $table->timestamps();
         });
