@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\PlaylistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,3 +38,9 @@ Route::middleware('auth:sanctum')->group(function () {
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
+
+
+// ini buat playlist #aji 
+Route::post('create-playlist',[PlaylistController::class,'create_playlist']);
+
+// Route::post('/', 'App\Http\Controllers\PlaylistManagementController@create_playlist');
