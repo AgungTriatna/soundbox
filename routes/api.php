@@ -40,6 +40,11 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
 
 });
+
+// ini buat playlist #aji 
+Route::post('create-playlist',[PlaylistController::class,'create_playlist']);
+
+// Route::post('/', 'App\Http\Controllers\PlaylistManagementController@create_playlist');
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 //     return $request->user();
 // });
