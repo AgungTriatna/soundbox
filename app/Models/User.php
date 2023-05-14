@@ -29,6 +29,12 @@ class User extends Authenticatable
         'role',
     ];
 
+
+    public function labels()
+    {
+        return $this->hasMany(Label::class, 'id_user');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
