@@ -25,8 +25,7 @@ class AuthController extends Controller
 
             $token = $user->createToken('user_token')->plainTextToken;
 
-            return response()->json([ 'user' => $user, 'token' => $token ], 200);
-
+            return response()->json(['user' => $user, 'token' => $token], 200);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -45,11 +44,10 @@ class AuthController extends Controller
             if (Hash::check($request->input('password'), $user->password)) {
                 $token = $user->createToken('user_token')->plainTextToken;
 
-                return response()->json([ 'user' => $user, 'token' => $token ], 200);
+                return response()->json(['user' => $user, 'token' => $token], 200);
             }
 
-            return response()->json([ 'error' => 'Something went wrong in login' ]);
-
+            return response()->json(['error' => 'Something went wrong in login']);
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -67,7 +65,6 @@ class AuthController extends Controller
             $user->tokens()->delete();
 
             return response()->json('User logged out!', 200);
-
         } catch (\Exception $e) {
             return response()->json([
                 'error' => $e->getMessage(),
@@ -75,5 +72,4 @@ class AuthController extends Controller
             ]);
         }
     }
-
 }
